@@ -1,0 +1,21 @@
+READ ME
+----------------------------
+Solamente se debe compilar el archivo ejercicio3.cpp (C++)
+----------------------------
+Compilacion del ejercicio:
+	Abrir una consola en el directorio donde se encuentra el archivo ejercicio3.cpp y ejecutar el siguiente comando:
+	c++ ejercicio3.cpp -o ejercicio3.out
+----------------------------
+
+
+Ejecucion del ejercicio:
+	Hay dos formas de ejecutar el ejercicio: como proceso central o como sensor.
+	- Ejecucion de Proceso central:
+		Abrir una consola en el directorio donde se encuentra el archivo ejercicio3.out y ejecutar el siguiente comando:
+		./ejercicio3.out
+	- Ejecucion de Sensor:
+		Abrir una consola en el directorio donde se encuentra el archivo ejercicio3.out y ejecutar el siguiente comando:
+		./ejercicio3.out {NumeroSensor}
+		Ej: ./ejercicio3.out 155
+		Ej: ./ejercicio3.out 71
+

@@ -1,0 +1,32 @@
+Compilacion del ejercicio 5:
+SERVIDOR :
+	Abrir una terminal en el directorio donde se encuentra el archivo servidor.c y ejecutar el siguiente comando:
+	$ gcc servidor.c -o servidor -lpthread 
+
+CLIENTE: 
+	Abrir una terminal en el directorio donde se encuentra el archivo cliente.c y ejecutar el siguiente comando:
+	$ gcc cliente.c -o cliente
+
+Ejecucion del ejercicio:
+			--SERVIDOR--	
+			Primero en un terminal ejecutar el servidor
+			##PARAMETROS##
+			El servidor debe recibir como parametro el puerto a conectar el servidor
+
+			Abrir una terminal en el directorio donde se encuentra el archivo servidor y ejecutar el siguiente comando: 
+			./servidor PUERTO
+
+			EJEMPLO: ./servidor 53210
+
+			--CLIENTE--
+			En otra terminal ejecutar el cliente (Una terminal por cada cliente), 
+
+			##PARAMETROS##
+			El cliente debe recibir como parametro la direccion IP del servidor o el nombre de maquina del servidor
+			Ademas debe recibir el puerto al que fue conectado el servidor
+
+			Abrir una terminal en el directorio donde se encuentra el archivo cliente y ejecutar el siguiente comando: 
+			./cliente IP o NOMBRE MAQUINA PUERTO
+
+			EJEMPLO: ./cliente 10.0.2.15 53210
+			EJEMPLO: ./cliente user-virtualBox 53210

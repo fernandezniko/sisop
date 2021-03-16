@@ -1,0 +1,1 @@
+Nota: Antes de ejecutar el scrip debe apretar play y luego llamar a la funcion para probarlo.

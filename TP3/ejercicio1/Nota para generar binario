@@ -1,0 +1,18 @@
+Compilacion del ejercicio 1:
+
+Abrir una terminal en el directorio donde se encuentra el archivo ejercicio1.c y ejecutar el siguiente comando:
+
+$ gcc ejercicio1.c -o nombreBinario
+(-o para darle el nombre al binario)
+
+EJEMPLO: gcc ejercicio1.c -o ejercicio1
+	 gcc ejercicio1.c -o ejercicio1.out
+
+Ejecucion del ejercicio:
+			Abrir una consola en el directorio donde se encuentra el archivo ejercicio1(ejercicio1 , ejercicio1.out en este ejemplo)
+			 y ejecutar el siguiente comando: 
+
+			./nombreBinario
+
+			EJEMPLO: ./ejercicio1
+				 ./ejercicio1.out

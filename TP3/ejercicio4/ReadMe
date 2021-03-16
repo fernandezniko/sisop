@@ -1,0 +1,15 @@
+READ ME - Ejercicio 4
+----------------------------
+Solamente se debe compilar el archivo ejercicio4.c 
+----------------------------
+Compilacion del ejercicio:
+	Abrir una consola en el directorio donde se encuentra el archivo ejercicio3.cpp y ejecutar el siguiente comando:
+	gcc ejercicio3.cpp -o ejercicio4.out -lpthread
+----------------------------
+Ejecucion del ejercicio:
+	Abrir una consola en el directorio donde se encuentra el archivo ejercicio3.out y ejecutar el siguiente comando:
+		./ejercicio4.out
+	Posteriormete pedira el ingreso del nombre del archivo a procesar. Debe estar en el mismo directorio
+----------------------------
+NOTA: el proceso A informa al proceso B de que termino de leer el archivo con una marca en al estructura compartida
+

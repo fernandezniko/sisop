@@ -1,0 +1,17 @@
+READ ME - Ejercicio 2
+---------------------------
+Solamente se debe compilar el archivo ejercicio2.c 
+----------------------------
+Compilacion del ejercicio:
+	Abrir una consola en el directorio donde se encuentra el archivo ejercicio2.c y ejecutar el siguiente comando:
+	gcc ejercicio2.c -o ejercicio2.out -lpthread
+----------------------------
+Ejecucion del ejercicio:
+	Abrir una consola en el directorio donde se encuentra el archivo ejercicio2.out y ejecutar el siguiente comando:
+		./ejercicio2.out
+----------------------------
+NOTA: 
+- Se genera un archivo de nombre Resultado donde se guardan los datos de la ultima ejecucion.
+- Se genera un archivo por cada thread ejecutado donde se graban sus datos de procesamiento.
+- No se borran los archivos de los threads de procesos anteriores.
+

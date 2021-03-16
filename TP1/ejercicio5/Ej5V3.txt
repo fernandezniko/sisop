@@ -1,0 +1,249 @@
+﻿
+<#
+.SYNOPSIS
+   Script para la administración de reservas de pasajes en micro.
+   
+.DESCRIPTION
+El script muestra un listado de pasajes disponibles de viaje en micro, con el fin de poder realizar reservas. Especificando la ciudad origen y la ciudad destino. 
+.PARAMETER Origen
+Ciudad, donde sale el micro.
+.PARAMETER Destino
+Ciudad, donde llega el micro.
+.PARAMETER Euro
+Informa los precios en Euro, dependiendo de la tasa de cambio.
+.EXAMPLE
+PS C:\TP1\ej5> .\ej5.ps1 "Kotor de ciu" t
+.EXAMPLE
+PS C:\TP1\ej5> .\ej5.ps1 -Origen K -Destino T -euro 10.3
+.NOTES
+Si la ciudad contiene espacio, se debe colocar entrecomillas ("Ciudad de ida").
+#>
+     
+[CmdletBinding()]
+Param(
+   [Parameter(Mandatory=$True,Position=1)]
+   [ValidateNotNullOrEmpty()]
+   [string]$origen,
+	
+   [Parameter(Mandatory=$True,Position=2)]
+   [ValidateNotNullOrEmpty()]
+   [string]$destino,
+
+   [Parameter(Mandatory=$false,Position=3)]
+   [ValidateNotNullOrEmpty()]
+   [ValidateRange(0.0000000000000000000000000001,9999999999999999999999999)]
+   [double]$euro
+   #NO se permiten valores negativos para EURO, tampoco es valido el valor '0'
+)
+
+
+
+$ruta="archivo.csv"
+$lista= Import-Csv $ruta  -Delimiter  ';' #-Header A,B,C,D,E,F,G,H 
+#$lista.GetType().fullname
+
+
+
+$ruta="archivo.csv"
+$baseaux= Import-Csv $ruta  -Delimiter  ';' #-Header A,B,C,D,E,F,G,H 
+
+
+
+$lista | Add-Member NoteProperty "ID" -Value 0
+$baseaux | Add-Member NoteProperty "ID" -Value 0 #para los precios en euros.
+
+$i=0
+
+foreach ($row in $lista){
+$date = $row."fecha hora desde"
+$precioenleks = $row."precio en leks"
+$i=$i+1
+$ID=$i
+$row.ID=$i
+}
+
+
+$j=0
+foreach ($row in $baseaux){
+$date = $row."fecha hora desde"
+$precioenleks = $row."precio en leks"
+$j=$j+1
+$ID=$j
+$row.ID=$j
+}
+
+
+
+if($euro)
+{          #Para verificar si el archivo está vacío o no se encontraron registros.
+          $cantidad=$baseaux | Select ID,desde,'fecha hora desde', hasta,'fecha hora hasta',@{Name="precio en euro";Expression={$_."precio en leks"}},'asientos libres' |
+             Where-Object  {$_.Desde -like "$origen*" -and $_.hasta -like "$destino*" -and [datetime]::ParseExact($_."fecha hora desde","dd/MM/yyyy HH:mm",[System.Globalization.CultureInfo]::CurrentCulture) -ge [DATETIME]::now } | measure
+       if($cantidad.Count -eq 0)
+       {$fecha=[DATETIME]::now
+       
+        Write-output "No se encontraron pasajes con los criterios especificados en la fecha seleccionada: $fecha"
+        write-Output "Por favor, reintente nuevamente con otros criterios. "
+       }
+       else
+       {
+   
+          
+           foreach ($row in $baseaux){
+           $row."precio en leks"= [math]::Round($row."precio en leks"/$euro,2)
+            }
+   
+        $salida=$baseaux | Select ID,desde,'fecha hora desde', hasta,'fecha hora hasta',@{Name="precio en euro";Expression={$_."precio en leks"}},'asientos libres' |
+        Where-Object  {$_.Desde -like "$origen*" -and $_.hasta -like "$destino*" -and [datetime]::ParseExact($_."fecha hora desde","dd/MM/yyyy HH:mm",[System.Globalization.CultureInfo]::CurrentCulture) -ge [DATETIME]::now } | Format-Table
+    
+    
+        $salida 
+        [int]$idpasaje= Read-host "Por favor seleccione el ID del pasaje que desea realizar"
+       
+        $flag=$true
+        while($flag){
+    
+       $algo=$baseaux | Select ID,desde,'fecha hora desde', hasta,'fecha hora hasta',@{Name="precio en euro";Expression={$_."precio en leks"}},'asientos libres' |
+        Where-Object  {$_.Desde -like "$origen*" -and $_.hasta -like "$destino*" -and $_.ID -eq $idpasaje -and [datetime]::ParseExact($_."fecha hora desde","dd/MM/yyyy HH:mm",[System.Globalization.CultureInfo]::CurrentCulture) -ge [DATETIME]::now} | measure
+   
+        if($algo.Count -ne 1)
+        {
+        write-error "No hay registro seleccionado por el ID ingresado"
+        $salida
+        [int]$idpasaje= Read-host "Por favor seleccione el ID del pasaje que desea realizar"
+        }
+        else
+        {
+        write-output "El siguiente Registro ha sido seleccionado:"
+        $registroseleccionado=$baseaux | Select ID,desde,'fecha hora desde', hasta,'fecha hora hasta',@{Name="precio en euro";Expression={$_."precio en leks"}},'asientos libres' |
+        Where-Object  {$_.Desde -like "$origen*" -and $_.hasta -like "$destino*" -and $_.ID -eq $idpasaje -and [datetime]::ParseExact($_."fecha hora desde","dd/MM/yyyy HH:mm",[System.Globalization.CultureInfo]::CurrentCulture) -ge [DATETIME]::now}
+        
+        $registroseleccionado
+        $flag=$false
+        }
+  
+
+   
+   }
+
+   try{
+        [Uint32]$asientosareservar= Read-Host "Para realizar la reserva, por favor ingresar la cantidad de asientos"
+        
+        foreach ($row in $registroseleccionado){
+        [int]$libre=$row.'asientos libres'
+        }
+
+
+    $netoasientos=$libre-$asientosareservar
+    if($netoasientos -lt 0){
+        write-output "$netoasientos"
+        Write-Error "NO se puede realizar la reserva, porque la cantitad de asientos a reservar supera la cantidad de asientos libres"
+    }
+    else 
+    {
+        foreach ($row in $lista){ 
+        
+            if($row.ID -eq $idpasaje)
+            {
+                $row.'asientos libres'=$netoasientos
+            }
+
+        }
+        $lista | select Desde,"fecha hora desde", hasta,"fecha hora hasta", "precio en leks","asientos libres" | Export-Csv "archivo.csv" -Delimiter ';' -NoTypeInformation
+        Write-Output "archivos actualizado: $ruta"
+    }
+    }
+    catch{Write-Error "Formato o número ingresado inválido"}
+
+    
+   }
+
+}
+
+else{
+    
+     $cantidad=$lista | Select ID,desde,'fecha hora desde', hasta,'fecha hora hasta',"precio en leks",'asientos libres' |
+    Where-Object  {$_.Desde -like "$origen*" -and $_.hasta -like "$destino*" -and [datetime]::ParseExact($_."fecha hora desde","dd/MM/yyyy HH:mm",[System.Globalization.CultureInfo]::CurrentCulture) -ge [DATETIME]::now} | measure    
+    
+    if($cantidad.Count -eq 0)
+    {
+        $fecha=[DATETIME]::now
+        Write-output "No se encontraron pasajes con los criterios especificados vigentes a partir de la fecha: $fecha"
+        write-Output "Por favor, reintente nuevamente con otros criterios: para más información, vea la ayuda 'get-help ./ej5.ps1'"
+    }
+    else
+    {
+ 
+    $salida=$lista | Select ID,desde,'fecha hora desde', hasta,'fecha hora hasta',"precio en leks",'asientos libres' |
+    Where-Object  {$_.Desde -like "$origen*" -and $_.hasta -like "$destino*" -and [datetime]::ParseExact($_."fecha hora desde","dd/MM/yyyy HH:mm",[System.Globalization.CultureInfo]::CurrentCulture) -ge [DATETIME]::now} | Format-Table     
+    
+    $salida 
+    [int]$idpasaje= Read-host "Por favor seleccione el ID del pasaje que desea realizar"
+  
+
+  
+    $flag=$true
+    while($flag){
+    
+       $algo=$lista | Select ID,desde,'fecha hora desde', hasta,'fecha hora hasta',"precio en leks",'asientos libres' |
+        Where-Object  {$_.Desde -like "$origen*" -and $_.hasta -like "$destino*" -and $_.ID -eq $idpasaje -and [datetime]::ParseExact($_."fecha hora desde","dd/MM/yyyy HH:mm",[System.Globalization.CultureInfo]::CurrentCulture) -ge [DATETIME]::now} | measure
+
+    if($algo.Count -ne 1)
+     {
+        write-error "No hay registro seleccionado por el ID ingresado"
+         $salida
+           [int]$idpasaje= Read-host "Por favor seleccione el ID del pasaje que desea realizar"
+     }
+    else
+     {
+        write-output "El siguiente Registro ha sido seleccionado:"
+        $registroseleccionado=$lista | Select ID,desde,'fecha hora desde', hasta,'fecha hora hasta',"precio en leks",'asientos libres' |
+        Where-Object  {$_.Desde -like "$origen*" -and $_.hasta -like "$destino*" -and $_.ID -eq $idpasaje -and [datetime]::ParseExact($_."fecha hora desde","dd/MM/yyyy HH:mm",[System.Globalization.CultureInfo]::CurrentCulture) -ge [DATETIME]::now}
+        $registroseleccionado
+        $flag=$false
+     
+     }
+
+   
+   }
+
+   try{ 
+         
+         [Uint32]$asientosareservar= Read-Host "Para realizar la reserva, por favor ingresar la cantidad de asientos"
+         foreach ($row in $registroseleccionado){
+            [int]$libre=$row.'asientos libres'
+         }
+    
+    $netoasientos=$libre-$asientosareservar
+    
+    if($netoasientos -lt 0){
+        write-output "$netoasientos"
+        Write-Error "NO se puede realizar la reserva, porque la cantitad de asientos a reservar supera la cantidad de asientos libres"
+    }
+    else 
+    {
+        foreach ($row in $lista){ 
+        if($row.ID -eq $idpasaje) 
+        {
+            $row.'asientos libres'=$netoasientos
+        }
+
+        }
+        $lista | select Desde,"fecha hora desde", hasta,"fecha hora hasta", "precio en leks","asientos libres" | Export-Csv "archivo.csv" -Delimiter ';' -NoTypeInformation
+        Write-Output "archivos actualizado: $ruta"
+    }
+    }
+    catch{ Write-Error "Formato o número inválido, debe ingresar un entero positivo"}
+           
+
+    }
+}
+
+
+
+
+
+
+
+    
+
+
